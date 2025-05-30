@@ -1,0 +1,116 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## ⚠️ Mandatory Developer Instructions
+
+To ensure alignment with the product vision and to avoid mistakes or hallucinations, the following principles **must be strictly followed** during development.
+
+### 1. 🧠 No Autonomous Decisions
+
+> **Instruction:** Do **not** make any architectural, design, or logic decisions without consultation.
+
+* If any requirement is **ambiguous, incomplete, or unclear**, immediately **pause development** and escalate it for clarification.
+* Making assumptions based on "best practices" or "what feels right" is **not allowed** unless explicitly approved.
+* All assumptions must be **discussed and confirmed** before proceeding.
+
+**✅ DO**
+✔ Ask questions when unclear.
+✔ Validate any inferred behavior with the product owner.
+✔ Document alternatives if you're unsure.
+
+**❌ DON’T**
+✘ Assume missing functionality.
+✘ Introduce features, logic, or flows not explicitly defined.
+✘ Decide implementation strategies independently.
+
+---
+
+### 2. ⚖️ Trade-Off Awareness
+
+> **Instruction:** If a task can be implemented in more than one way, **present the options and trade-offs clearly before proceeding**.
+
+* For example: Should a task list be stored in a flat table or normalized with relations?
+  → **Discuss pros/cons first.**
+
+**Expected Behavior:**
+
+* Provide a table or bullet list with:
+
+  * Technical feasibility
+  * Performance impact
+  * Scalability implications
+  * Developer effort required
+
+Once trade-offs are presented, **wait for instruction** before proceeding.
+
+---
+
+### 3. ❓ When in Doubt — Ask
+
+> **Instruction:** If there is **any uncertainty** about backend structure, data flow, frontend interaction, API structure, error handling, or edge cases — ask for clarification.
+
+Examples:
+
+* “Should the API return a 404 or 400 for missing project?”
+* “Do we validate assignee name against users or allow any string?”
+
+Failure to ask = design risk = violation of spec.
+
+---
+
+### 4. 🎨 Follow Frontend Design Language Precisely
+
+> **Instruction:** Use the provided frontend design system **as-is**. No modifications, substitutions, or creative redesigns unless explicitly discussed.
+
+* Glasmorphism must be implemented with accurate transparency, shadow, and blur as per the design spec.
+* Primary and secondary colors must match the [Misogi.ai color palette](https://www.misogi.ai).
+* Use Tailwind CSS with glassmorphism-friendly utilities like `backdrop-blur`, `bg-opacity`, and `glass` classes.
+* Respect typography, spacing, and layout hierarchy.
+
+**💡 Note:** If a component feels "off" in responsiveness or alignment — **do not adjust** without confirmation.
+
+---
+
+### 5. 🔧 Backend Schema & API Contracts Are Final
+
+> **Instruction:** Backend models, field names, data types, and API routes provided in the documentation **must be implemented exactly as specified**.
+
+* Do not rename fields like `dueDate` to `deadline`, or `priority` to `urgency`.
+* Maintain camelCase for all schema and API objects.
+* API endpoints must match method, path, and behavior as per the documented routes (e.g., `POST /api/projects/[projectId]/tasks`).
+
+If any route or field seems inefficient or confusing → raise it before implementing.
+
+---
+
+### 6. 🧪 Be Rigorously Defensive
+
+* Always validate inputs (e.g., malformed dates, empty project names).
+* Handle AI parsing failures gracefully and follow fallback logic as described.
+* Never expose raw AI errors to users; always abstract and log.
+
+---
+
+### 7. 🔁 No Silent Refactoring or "Improvements"
+
+> **Instruction:** Avoid "cleanups", "optimizations", or "refactors" that aren't approved.
+
+* This includes reorganizing file structures, renaming variables, or introducing frameworks/libraries not discussed.
+
+---
+
+### 📌 Summary Checklist
+
+| Area                          | Must Do? |
+| ----------------------------- | -------- |
+| Ask for every assumption      | ✅ Yes    |
+| Discuss multiple approaches   | ✅ Yes    |
+| Wait for clarification        | ✅ Yes    |
+| Follow frontend spec strictly | ✅ Yes    |
+| Stick to backend schema/API   | ✅ Yes    |
+| Avoid self-decisions          | ✅ Yes    |
+| Never refactor unasked        | ✅ Yes    |
+
+---

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager - PRD Flowchart</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1E1E2F 0%, #2E2E3F 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #DCFF50;
+            margin-bottom: 1rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        #userFlow, #systemArchitecture {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Manager - Product Requirements Flowchart</h1>
+        
+        <div class="section">
+            <h2>User Journey Flow</h2>
+            <div id="userFlow" class="mermaid">
+                graph TD
+                    A[Landing Page] --> B{New User?}
+                    B -->|Yes| C[Register]
+                    B -->|No| D[Login]
+                    C --> E[Dashboard]
+                    D --> E
+                    E --> F[Create Project]
+                    E --> G[View Projects]
+                    G --> H[Select Project]
+                    H --> I[Natural Language Input]
+                    I --> J[AI Processing]
+                    J -->|Success| K[Display Task]
+                    J -->|Failure| L[Manual Form]
+                    L --> K
+                    K --> M[Edit Task]
+                    K --> N[Complete Task]
+                    style A fill:#1E1E2F,stroke:#DCFF50
+                    style E fill:#1E1E2F,stroke:#DCFF50
+                    style J fill:#1E1E2F,stroke:#00C9A7
+                    style K fill:#1E1E2F,stroke:#00C9A7
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>System Architecture</h2>
+            <div id="systemArchitecture" class="mermaid">
+                graph LR
+                    A[Frontend Next.js] --> B[API Routes]
+                    B --> C[Authentication]
+                    B --> D[Project Management]
+                    B --> E[Task Management]
+                    B --> F[OpenAI Integration]
+                    C & D & E --> G[(PostgreSQL)]
+                    F --> H[GPT-4 API]
+                    style A fill:#1E1E2F,stroke:#DCFF50
+                    style B fill:#1E1E2F,stroke:#DCFF50
+                    style F fill:#1E1E2F,stroke:#00C9A7
+                    style H fill:#1E1E2F,stroke:#00C9A7
+                    style G fill:#1E1E2F,stroke:#FF6B6B
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#DCFF50',
+                secondaryColor: '#00C9A7',
+                tertiaryColor: '#FF6B6B',
+                mainBkg: '#1E1E2F',
+                nodeBorder: '#DCFF50',
+                clusterBkg: 'transparent',
+                titleColor: '#DCFF50',
+                edgeLabelBackground: '#1E1E2F'
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,162 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🗂️ Task Manager App — MoSCoW-Based Development Roadmap
+
+This document outlines the **phased roadmap** using the **MoSCoW framework** to build V1 of the Task Manager app end to end. Each phase contains **atomic tasks** required to deliver the minimum viable product (MVP).
+
+---
+
+## ✅ MoSCoW Prioritization Key
+
+- **M – Must have** (Critical for core functionality)
+- **S – Should have** (Important but not essential for MVP)
+- **C – Could have** (Nice-to-haves, lower priority)
+- **W – Won’t have (for now)** (Out of scope for V1)
+
+---
+
+## 🚀 Phase 1: Project Initialization & Backend Setup
+
+> Purpose: Lay the foundational structure for backend development.
+
+- [M] Initialize Monorepo with Next.js App (App Router enabled)
+- [M] Configure `.env` for both frontend/backend (OpenAI key, DB URL, etc.)
+- [M] Set up TypeScript across the project
+- [M] Create `/backend` folder with `src`, `prisma`, `lib`, `api` structure
+- [M] Initialize PostgreSQL schema using Prisma
+- [M] Install & configure third-party services:
+  - OpenAI SDK (`openai`)
+  - Prisma
+  - PostgreSQL Client
+  - Auth library (`next-auth`)
+- [M] Run and validate local backend server with seed script and test data
+
+---
+
+## 🧠 Phase 2: Backend Core Logic
+
+> Purpose: Build APIs, DB schemas, and AI parsing logic.
+
+- [M] Define Prisma Models:
+  - `User`
+  - `Project`
+  - `Task`
+- [M] Implement DB migrations and seed script
+- [M] Create REST/handler-based API routes:
+  - `/api/projects`
+  - `/api/tasks`
+- [M] Integrate OpenAI API for natural language parsing
+  - Model: `gpt-4` or `gpt-4-turbo`
+  - Output: `{ taskName, assignee, dueDateTime, priority }`
+- [M] Implement error handling and fallback to manual entry
+- [S] Store or log parsed results for debugging
+
+---
+
+## 🔒 Phase 3: Authentication & Access Control
+
+> Purpose: Implement secure login and user identification.
+
+- [M] Set up email/password auth using `next-auth`
+- [M] Create registration & login endpoints
+- [M] Protect API routes using session/middleware
+- [S] Hash passwords securely before storage
+- [S] Add logout & session expiry
+
+---
+
+## 📂 Phase 4: Project and Task Management APIs
+
+> Purpose: Create all APIs needed to support core app workflows.
+
+- [M] `POST /api/projects` – Create new project
+- [M] `GET /api/projects` – Fetch all projects for a user
+- [M] `POST /api/projects/[id]/tasks` – Add task using natural language
+- [M] `GET /api/projects/[id]/tasks` – List tasks for a project
+- [M] `PATCH /api/tasks/[id]` – Inline task edit
+- [S] `DELETE /api/tasks/[id]` – Delete a task
+- [C] `POST /api/projects/share` – Invite others (optional)
+
+---
+
+## 🎨 Phase 5: Frontend Foundation
+
+> Purpose: Set up Next.js frontend with Tailwind and design system.
+
+- [M] Install Tailwind CSS with glassmorphism styling
+- [M] Define color scheme from [Misogi.ai](https://www.misogi.ai):
+  - Primary: `#DCFF50`
+  - Secondary: `#4A4A4A`
+- [M] Create reusable UI components:
+  - `TaskCard`, `ProjectCard`, `InputBox`, `Navbar`, `Modal`
+- [M] Build required pages:
+  - `/login`, `/register`, `/dashboard`, `/projects/[id]`
+- [M] Protect frontend routes using `next-auth` session
+- [S] Handle empty/error states (no tasks, API errors)
+
+---
+
+## 🛠️ Phase 6: Task Input & AI Parsing Integration
+
+> Purpose: Let user input tasks in natural language and visualize parsed data.
+
+- [M] Add input field: “e.g., Call Rajeev tomorrow by 5pm”
+- [M] On submit, call backend to parse & create task
+- [M] Show parsed task in list:
+  - Task Name, Assignee, Due Date, Priority
+- [M] Allow **inline editing** of all fields
+- [S] Show error feedback if AI parsing fails
+
+---
+
+## 🚀 Phase 7: Final Touches & Deployment
+
+> Purpose: Deploy the app and complete QA.
+
+- [M] Test all major flows (login, projects, tasks, edit)
+- [M] Validate error boundaries and fallback cases
+- [M] Deploy frontend/backend to Vercel
+- [M] Use Supabase or Railway for PostgreSQL
+- [M] Document setup instructions in `README.md`
+- [S] Add minimal Cypress or unit test for task parsing
+
+---
+
+## ❌ Out of Scope for V1 (WON’T HAVE)
+
+| Feature              | Reason                  |
+|----------------------|-------------------------|
+| Recurring Tasks      | Not in initial spec     |
+| Reminders/Notifications | Explicitly excluded     |
+| Kanban View          | Using list view instead |
+| Role-Based Access    | No roles in V1          |
+| File Attachments     | Future roadmap          |
+| Mobile-specific UX   | Optional for later      |
+
+---
+
+## 📚 Third-Party Services & Documentation
+
+- **OpenAI API**  
+  https://platform.openai.com/docs
+
+- **Prisma ORM**  
+  https://www.prisma.io/docs
+
+- **NextAuth (Authentication)**  
+  https://next-auth.js.org/getting-started/introduction
+
+- **PostgreSQL**  
+  https://www.postgresql.org/docs/
+
+- **Tailwind CSS**  
+  https://tailwindcss.com/docs/installation
+
+- **Vercel Deployment**  
+  https://vercel.com/docs
+
+---
+

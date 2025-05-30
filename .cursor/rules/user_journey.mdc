@@ -1,0 +1,201 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🧭 User Journey: Task Manager App with Natural Language Input
+
+---
+
+## 🏁 1. **Landing Page Visit**
+
+### **Actions**
+
+* User visits the app (`/`)
+* Sees a minimal, glasmorphism-styled landing screen
+* Options:
+
+  * **Login**
+  * **Register**
+
+### **Design Goals**
+
+* Keep it clean and focused
+* Show a one-liner description like:
+  *“Type your tasks the way you think. We'll do the rest.”*
+
+---
+
+## 🔐 2. **Authentication**
+
+### **Register (`/register`)**
+
+* Fields: Email, Password, Confirm Password
+* Validation: Unique email, strong password (min 8 chars)
+
+### **Login (`/login`)**
+
+* Fields: Email, Password
+* On success: Redirect to `/dashboard`
+
+### **Error Handling**
+
+* Show alerts for:
+
+  * Invalid credentials
+  * Duplicate emails
+  * Missing inputs
+
+---
+
+## 📂 3. **Dashboard View (`/dashboard`)**
+
+### **Scenario A: New User**
+
+* Sees an empty screen with prompt:
+  *“Create your first project to begin.”*
+* CTA: `+ New Project`
+
+### **Scenario B: Returning User**
+
+* Sees all existing projects as **cards** or a **list**
+* Each card shows:
+
+  * Project name
+  * Task count
+  * Last updated time
+
+### **Action**
+
+* Click project → navigates to `/dashboard/[projectId]`
+
+---
+
+## 🗃️ 4. **Project Page (`/dashboard/[projectId]`)**
+
+### **Project Header**
+
+* Project name
+* Option to rename or delete project
+
+### **Add Task**
+
+* At the top: input box with placeholder like:
+  *“e.g. Finish landing page Aman by 11pm 20th June”*
+* Button: `➕ Add Task`
+
+---
+
+## 🧠 5. **Task Parsing via AI**
+
+### **User Action**
+
+* Enters a task in natural language
+* Submits via button or Enter
+
+### **System Flow**
+
+1. Frontend sends task text to `POST /api/parse-task`
+2. OpenAI processes and returns structured data:
+
+   ```json
+   {
+     "title": "Finish landing page",
+     "assignee": "Aman",
+     "dueDate": "2025-06-20T23:00:00.000Z",
+     "priority": "P3"
+   }
+   ```
+3. The app creates task via `POST /api/projects/[projectId]/tasks`
+
+---
+
+## 📋 6. **Display Parsed Task**
+
+### **Task List View**
+
+* Each task shows:
+
+  * ✅ Checkbox
+  * 📝 Title
+  * 🙋 Assignee
+  * 🕒 Due Date (formatted)
+  * 🔥 Priority badge (color-coded)
+
+### **Design**
+
+* Glasmorphic card per task
+* Hover state → option to edit inline
+
+---
+
+## 🛠️ 7. **Inline Task Editing**
+
+### **Supported Edits**
+
+* Title
+* Assignee
+* Due Date
+* Priority
+
+### **Flow**
+
+* User clicks any field
+* Turns into an inline input
+* Press Enter or click ✅ to save
+* API: `PUT /api/projects/[projectId]/tasks/[taskId]`
+
+---
+
+## ❌ 8. **Handling Parsing Errors**
+
+### **If AI returns nothing / error**
+
+* Show alert:
+  *“Couldn’t understand that. Want to fill it manually?”*
+* Option opens a fallback form with:
+
+  * Title (required)
+  * Assignee (optional)
+  * Due date/time (optional)
+  * Priority (dropdown)
+
+---
+
+## 🚫 9. **Edge Case Behaviors**
+
+| Case                  | Behavior                |
+| --------------------- | ----------------------- |
+| No project selected   | Disable task input      |
+| Empty task input      | Disable submit button   |
+| Unregistered assignee | Still display as string |
+| Invalid NLP date      | Treat as no due date    |
+| Login expired         | Redirect to `/login`    |
+
+---
+
+## 🚪 10. **Logout**
+
+* Logout button in header or side menu
+* Clears JWT/token
+* Redirect to `/login`
+
+---
+
+## ✅ Summary of the Flow
+
+```mermaid
+flowchart TD
+    A[Landing Page] --> B[Login/Register]
+    B --> C[Dashboard]
+    C --> D[Project Page]
+    D --> E[Natural Language Task Input]
+    E --> F[AI Parsing]
+    F -->|Success| G[Create Task]
+    F -->|Fail| H[Fallback Manual Form]
+    G --> I[Show in Task List]
+    H --> I
+    I --> J[Edit Inline]
+```
+
+---

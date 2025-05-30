@@ -1,0 +1,240 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 📁 Application Structure
+
+## 🗂️ File Structure
+
+```
+task-manager-app/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── login/route.ts
+│   │   │   └── register/route.ts
+│   │   ├── projects/
+│   │   │   ├── route.ts
+│   │   │   └── [projectId]/
+│   │   │       ├── route.ts
+│   │   │       └── tasks/
+│   │   │           ├── route.ts
+│   │   │           └── [taskId]/route.ts
+│   │   └── parse-task/route.ts
+│   ├── dashboard/
+│   │   ├── page.tsx
+│   │   └── [projectId]/
+│   │       └── page.tsx
+│   ├── login/page.tsx
+│   ├── register/page.tsx
+│   └── layout.tsx
+├── components/
+│   ├── AuthForm.tsx
+│   ├── ProjectCard.tsx
+│   ├── TaskInput.tsx
+│   ├── TaskList.tsx
+│   └── TaskItem.tsx
+├── lib/
+│   ├── db.ts
+│   └── openai.ts
+├── prisma/
+│   └── schema.prisma
+├── public/
+│   └── assets/
+├── styles/
+│   ├── globals.css
+│   └── tailwind.config.js
+├── .env
+├── package.json
+└── README.md
+```
+
+---
+
+## 🌐 Routes
+
+### API Routes (`app/api/`)
+
+* `POST /api/auth/register`: User registration
+* `POST /api/auth/login`: User login
+* `GET /api/projects`: Fetch all projects
+* `POST /api/projects`: Create a new project
+* `GET /api/projects/[projectId]`: Fetch a specific project
+* `PUT /api/projects/[projectId]`: Update a project
+* `DELETE /api/projects/[projectId]`: Delete a project
+* `GET /api/projects/[projectId]/tasks`: Fetch tasks for a project
+* `POST /api/projects/[projectId]/tasks`: Create a new task in a project
+* `PUT /api/projects/[projectId]/tasks/[taskId]`: Update a task
+* `DELETE /api/projects/[projectId]/tasks/[taskId]`: Delete a task
+* `POST /api/parse-task`: Parse natural language input into structured task data
+
+### Frontend Routes (`app/`)
+
+* `/register`: Registration page
+* `/login`: Login page
+* `/dashboard`: User dashboard displaying all projects
+* `/dashboard/[projectId]`: Detailed view of a specific project and its tasks
+
+---
+
+## 🧩 Database Schemas
+
+Using **Prisma ORM**, the database schema is defined in `prisma/schema.prisma`.
+
+```prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String    @id @default(uuid())
+  email    String    @unique
+  password String
+  projects Project[] @relation("UserProjects")
+  tasks    Task[]    @relation("UserTasks")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  ownerId     String
+  owner       User     @relation("UserProjects", fields: [ownerId], references: [id])
+  tasks       Task[]
+}
+
+model Task {
+  id         String   @id @default(uuid())
+  title      String
+  assignee   String?
+  dueDate    DateTime?
+  priority   String   @default("P3")
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  creatorId  String
+  creator    User     @relation("UserTasks", fields: [creatorId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+```
+
+---
+
+## 🎨 Frontend Design Elements
+
+### Design Principles
+
+* **Glasmorphism**: Utilize semi-transparent backgrounds with blur effects to create a frosted glass appearance.
+* **Color Palette**: Inspired by Misogi AI's branding.
+
+  * **Primary Color**: `#1E1E2F` (Deep Navy Blue)
+  * **Secondary Color**: `#00C9A7` (Turquoise)
+  * **Accent Color**: `#FF6B6B` (Coral Red)
+  * **Background Gradient**: `linear-gradient(135deg, #1E1E2F 0%, #2E2E3F 100%)`
+
+### Components Overview
+
+* **AuthForm.tsx**: Handles both login and registration forms with input validation.
+* **ProjectCard.tsx**: Displays project information in a card layout with glasmorphism styling.
+* **TaskInput.tsx**: Input field for natural language task entry with a submit button.
+* **TaskList.tsx**: Lists all tasks within a project, grouped accordingly.
+* **TaskItem.tsx**: Displays individual task details with inline editing capabilities.
+
+### Sample Tailwind CSS Configuration (`tailwind.config.js`)
+
+```javascript
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1E1E2F",
+        secondary: "#00C9A7",
+        accent: "#FF6B6B",
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+### Global Styles (`styles/globals.css`)
+
+```css
+body {
+  @apply bg-gradient-to-br from-primary to-secondary text-white min-h-screen;
+  font-family: 'Inter', sans-serif;
+}
+
+.glass {
+  @apply bg-white bg-opacity-10 backdrop-blur-xs rounded-lg shadow-lg p-6;
+}
+```
+
+---
+
+## 🤖 AI Integration
+
+* **Endpoint**: `POST /api/parse-task`
+* **Functionality**: Sends the natural language input to OpenAI's API to extract structured task data.
+* **Library**: OpenAI GPT (e.g., GPT-4-turbo)
+* **Usage**: Extract structured fields from raw text
+* **Fallback**: If parsing fails, prompt the user to manually enter task details.
+  
+---
+
+### OpenAI Prompt Example
+
+```ts
+{
+  prompt: `Extract task name, assignee, due date & time, and priority from this input: "${input}"`,
+  model: "gpt-4-turbo",
+  temperature: 0.3,
+}
+```
+
+---
+
+## ✅ Third-Party Libraries and Docs
+
+| Service          | Purpose                              | Docs Link                                                   |
+| ---------------- | ------------------------------------ | ----------------------------------------------------------- |
+| **OpenAI API**   | NLP task parsing                     | [OpenAI Docs](https://platform.openai.com/docs)             |
+| **Next.js**      | Frontend + Backend framework         | [Next.js Docs](https://nextjs.org/docs)                     |
+| **Prisma**       | ORM for PostgreSQL and SQLite        | [Prisma Docs](https://www.prisma.io/docs)                   |
+| **Tailwind CSS** | Styling and Glasmorphism effects     | [Tailwind Docs](https://tailwindcss.com/docs)               |
+| **PostgreSQL**   | Production-grade relational database | [PostgreSQL Docs](https://www.postgresql.org/docs/)         |
+| **SQLite**       | Lightweight development database     | [SQLite Docs](https://sqlite.org/docs.html)                 |
+| **Vercel**       | Hosting platform for Next.js         | [Vercel Docs](https://vercel.com/docs)                      |
+| **bcrypt**       | Password hashing                     | [bcrypt GitHub](https://github.com/kelektiv/node.bcrypt.js) |
+| **jsonwebtoken** | JWT handling for sessions            | [JWT Docs](https://github.com/auth0/node-jsonwebtoken)      |
+
+---
+
+## 📌 Development Notes
+* **Development Database**: Use SQLite for local development to simplify setup. SQLite (`DATABASE_URL="file:./dev.db"`)
+* **Production Database**: PostgreSQL for robust data handling.
+* **Environment Variables**:
+
+  ```env
+  DATABASE_URL="..."
+  OPENAI_API_KEY="..."
+  JWT_SECRET="..."
+  ```
+* **AI Failover**: If parsing fails → fallback to manual form with editable fields
+
+---
+
