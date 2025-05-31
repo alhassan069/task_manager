@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const { Op } = require('sequelize');
 
 // Generate JWT token
 const generateToken = (user) => {
@@ -108,8 +109,38 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+// Search users by name or email
+const searchUsers = async (req, res, next) => {
+  try {
+    const { query } = req.query;
+    
+    if (!query || query.length < 2) {
+      return res.status(400).json({ 
+        message: 'Search query must be at least 2 characters long' 
+      });
+    }
+    
+    // Find users matching the query in name or email
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { name: { [Op.like]: `%${query}%` } },
+          { email: { [Op.like]: `%${query}%` } }
+        ]
+      },
+      attributes: ['id', 'name', 'email'], // Only return safe fields
+      limit: 10 // Limit results to prevent large responses
+    });
+    
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
+  searchUsers
 }; 

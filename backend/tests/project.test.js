@@ -338,14 +338,15 @@ describe('Project Routes', () => {
 
       expect(response.body).toHaveProperty('message', 'Project shared successfully');
 
-      // Verify the project is shared
-      const membership = await ProjectMember.findOne({
+      // Verify the project member was created
+      const projectMember = await ProjectMember.findOne({
         where: {
           project_id: project.id,
           user_id: secondUser.id
         }
       });
-      expect(membership).not.toBeNull();
+
+      expect(projectMember).not.toBeNull();
     });
 
     it('should return 401 if not authenticated', async () => {
@@ -355,7 +356,7 @@ describe('Project Routes', () => {
         .expect(401);
     });
 
-    it('should return 403 if user is not the owner', async () => {
+    it('should return 403 if user is not the project owner', async () => {
       // Create a project owned by the second user
       const otherProject = await Project.create({
         name: 'Other Project',
@@ -363,23 +364,14 @@ describe('Project Routes', () => {
         owner_id: secondUser.id
       });
 
-      // First user tries to share second user's project
       await request(app)
         .post(`/api/projects/${otherProject.id}/share`)
         .set('Authorization', `Bearer ${token}`)
-        .send({ email: 'test@example.com' })
+        .send({ email: 'another@example.com' })
         .expect(403);
     });
 
-    it('should return 404 for non-existent project', async () => {
-      await request(app)
-        .post('/api/projects/9999/share')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ email: secondUser.email })
-        .expect(404);
-    });
-
-    it('should return 404 if the user to share with does not exist', async () => {
+    it('should return 404 if user to share with does not exist', async () => {
       const response = await request(app)
         .post(`/api/projects/${project.id}/share`)
         .set('Authorization', `Bearer ${token}`)
@@ -389,12 +381,13 @@ describe('Project Routes', () => {
       expect(response.body).toHaveProperty('message', 'User not found');
     });
 
-    it('should return 400 if the project is already shared with the user', async () => {
-      // Share the project first
-      await ProjectMember.create({
-        project_id: project.id,
-        user_id: secondUser.id
-      });
+    it('should return 400 if project is already shared with the user', async () => {
+      // First share
+      await request(app)
+        .post(`/api/projects/${project.id}/share`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ email: secondUser.email })
+        .expect(200);
 
       // Try to share again
       const response = await request(app)

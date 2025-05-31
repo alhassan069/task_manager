@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP-Powered Task Manager - PRD</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+
+        .mermaid {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>NLP-Powered Task Manager - Product Requirements Document</h1>
+
+    <div class="section">
+        <h2>1. Product Overview</h2>
+        <p>A task management web application that allows users to add and manage tasks using natural language input. Tasks are parsed using GPT-4-turbo to extract key components like task name, assignee, due date/time, and priority.</p>
+    </div>
+
+    <div class="section">
+        <h2>2. Development Process Flow</h2>
+        <div class="mermaid">
+            graph TD
+                A[Start] --> B[Phase 1: Core MVP]
+                B --> C[Phase 2: NLP Integration]
+                C --> D[Phase 3: Collaboration]
+                D --> E[Phase 4: Future Features]
+                B --> F[Backend Setup]
+                B --> G[Frontend Setup]
+                F --> H[Auth System]
+                F --> I[Basic CRUD]
+                G --> J[UI Components]
+                G --> K[State Management]
+                C --> L[GPT-4 Integration]
+                C --> M[Task Parsing]
+                D --> N[Project Sharing]
+                D --> O[Search & Filters]
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Key Features and Requirements</h2>
+        <table>
+            <tr>
+                <th>Feature</th>
+                <th>Description</th>
+                <th>Priority</th>
+            </tr>
+            <tr>
+                <td>Natural Language Task Input</td>
+                <td>Parse tasks using GPT-4-turbo to extract components</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>Project Management</td>
+                <td>Create and manage multiple projects with sharing</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>Task Management</td>
+                <td>Add, edit, delete tasks with structured fields</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>User Authentication</td>
+                <td>JWT-based auth with email/password</td>
+                <td>High</td>
+            </tr>
+            <tr>
+                <td>Collaboration</td>
+                <td>Share projects with read-only access</td>
+                <td>Medium</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>4. Technical Architecture</h2>
+        <div class="mermaid">
+            graph LR
+                A[React Frontend] --> B[Express Backend]
+                B --> C[PostgreSQL]
+                B --> D[OpenAI GPT-4]
+                style A fill:#f9f,stroke:#333,stroke-width:2px
+                style B fill:#bbf,stroke:#333,stroke-width:2px
+                style C fill:#bfb,stroke:#333,stroke-width:2px
+                style D fill:#fbb,stroke:#333,stroke-width:2px
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>5. Development Timeline</h2>
+        <div class="mermaid">
+            gantt
+                title Project Timeline
+                dateFormat  YYYY-MM-DD
+                section Phase 1
+                Backend Setup    :a1, 2024-01-01, 7d
+                Frontend Setup   :a2, after a1, 7d
+                section Phase 2
+                NLP Integration  :a3, after a2, 7d
+                Task Parsing     :a4, after a3, 7d
+                section Phase 3
+                Collaboration    :a5, after a4, 7d
+                Search & Filters :a6, after a5, 7d
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>6. Success Metrics</h2>
+        <div class="mermaid">
+            pie title Success Metrics
+                "Task Creation Speed" : 30
+                "NLP Accuracy" : 30
+                "User Engagement" : 20
+                "System Reliability" : 20
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>7. Non-Functional Requirements</h2>
+        <ul>
+            <li>Performance: Task creation and parsing within 2 seconds</li>
+            <li>Security: JWT-based authentication</li>
+            <li>Scalability: Support for concurrent users</li>
+            <li>Desktop-first responsive design</li>
+        </ul>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+        });
+    </script>
+</body>
+</html> 

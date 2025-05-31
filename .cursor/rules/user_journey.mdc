@@ -3,199 +3,166 @@ description:
 globs: 
 alwaysApply: true
 ---
-# 🧭 User Journey: Task Manager App with Natural Language Input
+Great — let’s walk through a **detailed user journey** for the NLP Task Manager app based on your goals, architecture, and UI design. This will ensure both developers and designers understand how the user flows through the product, what interactions are expected, and where parsing, storage, and UI feedback come into play.
 
 ---
 
-## 🏁 1. **Landing Page Visit**
-
-### **Actions**
-
-* User visits the app (`/`)
-* Sees a minimal, glasmorphism-styled landing screen
-* Options:
-
-  * **Login**
-  * **Register**
-
-### **Design Goals**
-
-* Keep it clean and focused
-* Show a one-liner description like:
-  *“Type your tasks the way you think. We'll do the rest.”*
+## 🧭 User Journey: NLP Task Manager
 
 ---
 
-## 🔐 2. **Authentication**
+### 🔰 1. **Landing Page (Unauthenticated)**
 
-### **Register (`/register`)**
+* **User sees** a clean, professional landing page with:
 
-* Fields: Email, Password, Confirm Password
-* Validation: Unique email, strong password (min 8 chars)
-
-### **Login (`/login`)**
-
-* Fields: Email, Password
-* On success: Redirect to `/dashboard`
-
-### **Error Handling**
-
-* Show alerts for:
-
-  * Invalid credentials
-  * Duplicate emails
-  * Missing inputs
+  * App headline and subheading (benefit-oriented)
+  * CTA: "Login" and "Get Started"
+  * Hero section explaining natural language input
+  * Brief UI screenshots or illustrations (optional)
+* **Goal**: Encourage user to login or sign up
 
 ---
 
-## 📂 3. **Dashboard View (`/dashboard`)**
+### 🔐 2. **Authentication Flow**
 
-### **Scenario A: New User**
+#### ➤ If user clicks “Login”:
 
-* Sees an empty screen with prompt:
-  *“Create your first project to begin.”*
-* CTA: `+ New Project`
+* They're taken to a login form (email & password)
+* On success:
 
-### **Scenario B: Returning User**
+  * JWT token is issued
+  * User is redirected to **Dashboard**
 
-* Sees all existing projects as **cards** or a **list**
-* Each card shows:
+#### ➤ If user clicks “Get Started”:
 
-  * Project name
-  * Task count
-  * Last updated time
+* They're taken to a registration form (email, password, name)
+* On success:
 
-### **Action**
-
-* Click project → navigates to `/dashboard/[projectId]`
+  * JWT token is issued
+  * User is redirected to **Login**
 
 ---
 
-## 🗃️ 4. **Project Page (`/dashboard/[projectId]`)**
+### 🧱 3. **Dashboard / Project Home**
 
-### **Project Header**
+* User sees:
 
-* Project name
-* Option to rename or delete project
+  * Navbar with app name, “+ New Project” button
+  * Empty state message if no projects exist
+* **Action**: Click “+ New Project”
 
-### **Add Task**
+  * Enter: Project name
+  * On creation:
 
-* At the top: input box with placeholder like:
-  *“e.g. Finish landing page Aman by 11pm 20th June”*
-* Button: `➕ Add Task`
-
----
-
-## 🧠 5. **Task Parsing via AI**
-
-### **User Action**
-
-* Enters a task in natural language
-* Submits via button or Enter
-
-### **System Flow**
-
-1. Frontend sends task text to `POST /api/parse-task`
-2. OpenAI processes and returns structured data:
-
-   ```json
-   {
-     "title": "Finish landing page",
-     "assignee": "Aman",
-     "dueDate": "2025-06-20T23:00:00.000Z",
-     "priority": "P3"
-   }
-   ```
-3. The app creates task via `POST /api/projects/[projectId]/tasks`
+    * Project card/list item appears
+    * User is redirected to the **Project View**
 
 ---
 
-## 📋 6. **Display Parsed Task**
+### 📁 4. **Inside a Project**
 
-### **Task List View**
+#### ✅ Key UI Areas
 
-* Each task shows:
+* “+ Add Task” input field (accepts natural language)
+* Task table below with columns:
 
-  * ✅ Checkbox
-  * 📝 Title
-  * 🙋 Assignee
-  * 🕒 Due Date (formatted)
-  * 🔥 Priority badge (color-coded)
+  * Task name
+  * Assignee
+  * Due Date/Time
+  * Priority
+  * \[✓] Completed toggle
+  * \[✏️] Inline edit
 
-### **Design**
+#### ➤ User Adds a Task
 
-* Glasmorphic card per task
-* Hover state → option to edit inline
+**Example input**:
 
----
+> `Finish landing page Aman by 11pm 20th June P2`
 
-## 🛠️ 7. **Inline Task Editing**
+* Backend sends input to OpenAI API (GPT-4-turbo)
+* Extracted:
 
-### **Supported Edits**
+  * Task name: `Finish landing page`
+  * Assignee: `Aman` (must be a registered user in the project)
+  * Due date: `20th June 11pm`
+  * Priority: `P2`
+* Fallbacks:
 
-* Title
-* Assignee
-* Due Date
-* Priority
+  * If no due date → "No due date"
+  * If no priority → Default `P3`
+  * If assignee is missing or unrecognized → Assign self
 
-### **Flow**
-
-* User clicks any field
-* Turns into an inline input
-* Press Enter or click ✅ to save
-* API: `PUT /api/projects/[projectId]/tasks/[taskId]`
-
----
-
-## ❌ 8. **Handling Parsing Errors**
-
-### **If AI returns nothing / error**
-
-* Show alert:
-  *“Couldn’t understand that. Want to fill it manually?”*
-* Option opens a fallback form with:
-
-  * Title (required)
-  * Assignee (optional)
-  * Due date/time (optional)
-  * Priority (dropdown)
+Parsed task is saved and shown in the task list instantly.
 
 ---
 
-## 🚫 9. **Edge Case Behaviors**
+### 🛠 5. **Editing / Managing Tasks**
 
-| Case                  | Behavior                |
-| --------------------- | ----------------------- |
-| No project selected   | Disable task input      |
-| Empty task input      | Disable submit button   |
-| Unregistered assignee | Still display as string |
-| Invalid NLP date      | Treat as no due date    |
-| Login expired         | Redirect to `/login`    |
+* Hovering or clicking a field (task name, assignee, date, priority) allows **inline editing**
+* Clicking delete icon prompts: **"Are you sure you want to delete this task?"**
+* Tasks are stored and rendered in order of **due date**
+* Completed tasks can be marked with a checkbox (strike-through on UI)
 
 ---
 
-## 🚪 10. **Logout**
+### 🔎 6. **Searching & Filtering**
 
-* Logout button in header or side menu
-* Clears JWT/token
-* Redirect to `/login`
+* User can:
+
+  * Search tasks by name or assignee
+  * Filter by priority, due date
+* Filters are visible above task list
 
 ---
 
-## ✅ Summary of the Flow
+### 👥 7. **Collaborative Use**
 
-```mermaid
-flowchart TD
-    A[Landing Page] --> B[Login/Register]
-    B --> C[Dashboard]
-    C --> D[Project Page]
-    D --> E[Natural Language Task Input]
-    E --> F[AI Parsing]
-    F -->|Success| G[Create Task]
-    F -->|Fail| H[Fallback Manual Form]
-    G --> I[Show in Task List]
-    H --> I
-    I --> J[Edit Inline]
-```
+* When creating or editing a project, user can invite other registered users
+* Collaborators:
+
+  * Can view the project
+  * Can see all tasks and edit them
+  * **Cannot** create/delete tasks
+
+---
+
+### 👤 8. **User Profile & Logout**
+
+* From top-right dropdown:
+
+  * View basic profile info (email, name)
+  * Logout
+* No settings page or password change feature (MVP constraint)
+
+---
+
+### 📲 9. **Fallback/Error States**
+
+* Invalid login → “Email or password incorrect”
+* Invalid assignee (non-user) → "User not found"
+* NLP parsing fails → "Couldn't understand input. Please try again."
+* Network/API errors → "Something went wrong. Try later."
+
+---
+
+### 🏁 10. **End of Journey**
+
+At any time, users can:
+
+* View all projects they've created
+* Enter any project and manage tasks
+* Logout safely
+
+---
+### ⚙️ Backend Touchpoints Summary
+
+| Step           | API Involved                     | Description                 |
+| -------------- | -------------------------------- | --------------------------- |
+| Login/Register | `/login` / `/register`           | Auth + JWT                  |
+| Create Project | `/projects`                      | Creates and stores metadata |
+| NLP Task Add   | `/tasks`                         | Parses + creates task       |
+| Edit Task      | `/tasks/:id` (PATCH)             | Update individual fields    |
+| Delete Task    | `/tasks/:id` (DELETE)            | Confirm and delete          |
+| Invite User    | `/projects/:id/invite`           | Share read-only access      |
 
 ---

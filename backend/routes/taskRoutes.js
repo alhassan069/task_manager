@@ -7,14 +7,19 @@ const {
   updateTask,
   deleteTask,
   toggleTaskCompletion,
+  parseTaskWithNLP,
 } = require('../controllers/taskController');
 const { authenticate } = require('../middlewares/authMiddleware');
+const { nlpRateLimiter } = require('../middlewares/rateLimitMiddleware');
 
 // Apply authentication middleware to all task routes
 router.use(authenticate);
 
 // Create a new task
 router.post('/', createTask);
+
+// Parse and create task using NLP (with rate limiting)
+router.post('/nlp', nlpRateLimiter, parseTaskWithNLP);
 
 // Get all tasks for a project
 router.get('/', getProjectTasks);

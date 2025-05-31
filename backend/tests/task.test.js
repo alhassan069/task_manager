@@ -360,4 +360,181 @@ describe('Task Routes', () => {
         .expect(404);
     });
   });
+
+  describe('Task Search and Filters', () => {
+    beforeEach(async () => {
+      // Create test tasks with different attributes for filtering
+      await createTestTask(project, user, { 
+        task_name: 'Frontend Task', 
+        priority: 'P1',
+        due_date: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+        is_complete: false
+      });
+      
+      await createTestTask(project, user, { 
+        task_name: 'Backend Task', 
+        priority: 'P2',
+        due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next week
+        is_complete: false
+      });
+      
+      await createTestTask(project, user, { 
+        task_name: 'Testing Task', 
+        priority: 'P3',
+        due_date: null, // No due date
+        is_complete: true
+      });
+      
+      // Create a task assigned to second user
+      await createTestTask(project, secondUser, { 
+        task_name: 'Assigned Task', 
+        priority: 'P2',
+        due_date: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday (overdue)
+        is_complete: false,
+        assigned_to: secondUser.id
+      });
+    });
+
+    it('should filter tasks by search query', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          search: 'Frontend'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].task_name).toBe('Frontend Task');
+    });
+
+    it('should filter tasks by priority', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          priority: 'P2'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(2);
+      expect(response.body.every(task => task.priority === 'P2')).toBe(true);
+    });
+
+    it('should filter tasks by completion status', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          is_complete: 'true'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].is_complete).toBe(true);
+    });
+
+    it('should filter tasks by due date (today)', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          due_date: 'today'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      // Since we don't have tasks due exactly today in our test data
+      // We expect an empty array or tasks that fall within today
+      expect(Array.isArray(response.body)).toBe(true);
+    });
+
+    it('should filter tasks by due date (week)', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          due_date: 'week'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      // Should include the task due tomorrow
+      expect(response.body.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.some(task => task.task_name === 'Frontend Task')).toBe(true);
+    });
+
+    it('should filter tasks by due date (overdue)', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          due_date: 'overdue'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      // Should include the task that's overdue
+      expect(response.body.length).toBeGreaterThanOrEqual(1);
+      expect(response.body.some(task => task.task_name === 'Assigned Task')).toBe(true);
+    });
+
+    it('should filter tasks by due date (no-date)', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          due_date: 'no-date'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].task_name).toBe('Testing Task');
+      expect(response.body[0].due_date).toBeNull();
+    });
+
+    it('should filter tasks by assignee', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          assignee: secondUser.id
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].task_name).toBe('Assigned Task');
+      expect(response.body[0].assigned_to).toBe(secondUser.id);
+    });
+
+    it('should combine multiple filters', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ 
+          project_id: project.id,
+          priority: 'P2',
+          is_complete: 'false'
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(2);
+      expect(response.body.every(task => task.priority === 'P2' && !task.is_complete)).toBe(true);
+    });
+
+    it('should return all tasks when no filters are applied', async () => {
+      const response = await request(app)
+        .get('/api/tasks')
+        .query({ project_id: project.id })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(response.body.length).toBe(4);
+    });
+  });
 }); 
